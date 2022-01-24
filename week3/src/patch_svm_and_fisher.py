@@ -102,14 +102,11 @@ print('Features test extracted.')
 FV_train = train_fv(features, descriptors_train)
 print('Fisher vectors train generated.')
 
-FV_test = train_fv(features, descriptors_test)
+FV_test = train_fv(features_test, descriptors_test)
 print('Fisher vectors test generated.')
 
 # gridsearch SVM
-param_grid = [{'kernel': ['rbf'], 'gamma': [1, 0.1, 0.01], 'C': [0.1, 1, 10]},
-              {'kernel': ['linear'], 'C': [0.1, 1, 10]},
-              {'kernel': ['poly'], 'degree': [2, 3, 4], 'gamma': [1, 0.1, 0.01], 'C': [0.1, 1, 10]},
-              {'kernel': [intersection_kernel]}]
+param_grid = [{'kernel': ['rbf'], 'gamma': [1, 0.1, 0.01], 'C': [0.1, 1, 10]}]
 
 grid = GridSearchCV(svm.SVC(), param_grid, n_jobs=3, cv=8)
 grid.fit(FV_train, train_labels)
