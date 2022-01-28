@@ -31,6 +31,17 @@ validation_samples = 807
 freeze_layers = True  # If this variable is activated, we will freeze the layers of the base model to train parameters
 # Experiment 3
 train_again = True  # If this variable is activated, we will train again after the freezing the whole model.
+# Experiment 4
+new_layers = True  # Activate this variable to append new layers in between of the base model and the prediction layer
+# igual probar alguna capa mas de cnn envez de meterle fc layers... luego lo miro
+
+# TO DO...:
+# CALLBACKS
+# HYPERPARAMETER SEARCH
+# DATA AUGMENTATION
+# TRY THE 4 DATASETS OF MIT_SMALL_TRAIN
+# mas propuestas...
+
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Create the specific folders for this week, only if they don't exist
@@ -75,6 +86,14 @@ plot_model(base_model, to_file=file, show_shapes=True, show_layer_names=True)
 
 # Take last layer and put a softmax to adapt the model to our problem (8 classes)
 x = base_model.layers[-2].output
+if new_layers:
+    print('Appending new layers to the model after the base_model...')
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.Dropout(.5)(x)
+    x = Dense(1024, activation='relu', name='extraProcessing1', )(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.Dropout(.2)(x)
+    x = Dense(256, activation='relu', name='extraProcessing2')(x)
 x = Dense(8, activation='softmax', name='predictions')(x)
 
 # Generate model from the base_model and our new generated layer
