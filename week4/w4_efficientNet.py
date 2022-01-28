@@ -25,7 +25,7 @@ img_height = 224
 
 # NN params
 batch_size = 32
-number_of_epoch = 50
+number_of_epoch = 40
 validation_samples = 807
 # Experiment 2
 freeze_layers = True  # If this variable is activated, we will freeze the layers of the base model to train parameters
