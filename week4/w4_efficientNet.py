@@ -90,7 +90,7 @@ if new_layers:
     print('Appending new layers to the model after the base_model...')
     x = tf.keras.layers.BatchNormalization()(x)
     x = tf.keras.layers.Dropout(.5)(x)
-    x = Dense(1024, activation='relu', name='extraProcessing1', )(x)
+    x = Dense(1024, activation='relu', name='extraProcessing1')(x)
     x = tf.keras.layers.BatchNormalization()(x)
     x = tf.keras.layers.Dropout(.2)(x)
     x = Dense(256, activation='relu', name='extraProcessing2')(x)
