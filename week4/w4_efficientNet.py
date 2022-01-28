@@ -1,15 +1,15 @@
+import os
+
 import matplotlib.pyplot as plt
+import tensorflow as tf
 from tensorflow.keras import backend as K
-from tensorflow.keras.applications.vgg16 import VGG16
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import plot_model
-import os
-import tensorflow as tf
 
 # --------------------------------------------------Global parameters--------------------------------------------------
-plot = True                 # If plot is true, the performance of the model will be shown (accuracy, loss, etc.)
+plot = True  # If plot is true, the performance of the model will be shown (accuracy, loss, etc.)
 model_used = 'EfficientNetB2'
 num_of_experiment = '1'
 
@@ -25,10 +25,12 @@ img_height = 224
 
 # NN params
 batch_size = 32
-number_of_epoch = 2
+number_of_epoch = 50
 validation_samples = 807
-freeze_layers = True   # If this variable is activated, we will freeze the layers of the base model to train parameters
-train_again = True     # If this variable is activated, we will train again after the freezing the whole model.
+# Experiment 2
+freeze_layers = True  # If this variable is activated, we will freeze the layers of the base model to train parameters
+# Experiment 3
+train_again = True  # If this variable is activated, we will train again after the freezing the whole model.
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Create the specific folders for this week, only if they don't exist
@@ -50,12 +52,12 @@ def preprocess_input(x, dim_ordering='default'):
 
     if dim_ordering == 'channels_first':
         # 'RGB'->'BGR'
-        x = x[::-1, :, :] # ::-1 => reverse of list
+        x = x[::-1, :, :]  # ::-1 => reverse of list
         # Zero-center by mean pixel
         x[0, :, :] -= 103.939
         x[1, :, :] -= 116.779
         x[2, :, :] -= 123.68
-    else: # channels_last
+    else:  # channels_last
         # 'RGB'->'BGR'
         x = x[:, :, ::-1]
         # Zero-center by mean pixel
@@ -133,10 +135,6 @@ history = model.fit(train_generator,
 result = model.evaluate(test_generator)
 print(result)
 
-model_f_path = path_model + "/saved_model" + '/' + model_used + '_' + num_of_experiment + '.h5'
-model.save_weights(model_f_path)  # always save your weights after training or during training
-
-# list all data in history
 if plot:
     # summarize history for accuracy
     plt.plot(history.history['accuracy'])
@@ -148,6 +146,7 @@ if plot:
     file = path_model + '/results' + '/accuracy.jpg'
     plt.savefig(file)
     plt.close()
+
     # summarize history for loss
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
@@ -157,3 +156,46 @@ if plot:
     plt.legend(['train', 'validation'], loc='upper left')
     file = path_model + '/results' + '/loss.jpg'
     plt.savefig(file)
+    plt.close()
+
+
+if freeze_layers and train_again:
+    tf.keras.backend.clear_session()
+    print('Training again the whole model...')
+    K.set_value(model.optimizer.learning_rate, 0.0001)  # Decrease learning rate (default - opt:Adam => 0.001)
+    for layer in model.layers:
+        layer.trainable = True
+        print(layer.name, layer.trainable)
+
+    history = model.fit(train_generator,
+                        steps_per_epoch=(int(400 // batch_size) + 1),
+                        epochs=number_of_epoch,
+                        validation_data=validation_generator,
+                        validation_steps=(int(validation_samples // batch_size) + 1), callbacks=[])
+
+    if plot:
+        # summarize history for accuracy
+        plt.plot(history.history['accuracy'])
+        plt.plot(history.history['val_accuracy'])
+        plt.title('model accuracy RETRAINED')
+        plt.ylabel('accuracy')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'validation'], loc='upper left')
+        file = path_model + '/results' + '/accuracy_retrained.jpg'
+        plt.savefig(file)
+        plt.close()
+
+        # summarize history for loss
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('model loss RETRAINED')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'validation'], loc='upper left')
+        file = path_model + '/results' + '/loss_retrained.jpg'
+        plt.savefig(file)
+        plt.close()
+
+model_f_path = path_model + "/saved_model" + '/' + model_used + '_' + num_of_experiment + '.h5'
+model.save_weights(model_f_path)  # always save your weights after training or during training
+
