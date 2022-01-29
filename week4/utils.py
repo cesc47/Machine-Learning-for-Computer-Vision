@@ -53,3 +53,45 @@ def plot_acc_and_loss(history, path_model, retrained=False):
         file = path_model + '/results' + '/loss.jpg'
     plt.savefig(file)
     plt.close()
+
+
+def plot_acc_and_loss_all(history1, history2, history3, history4, path_model, retrained=False):
+    # summarize history for accuracy
+    plt.plot(history1['accuracy'], label="accuracy_mitSplit1")
+    plt.plot(history1['val_accuracy'], label="val_accuracy_mitSplit1")
+    plt.plot(history2['accuracy'], label="accuracy_mitSplit2")
+    plt.plot(history2['val_accuracy'], label="val_accuracy_mitSplit2")
+    plt.plot(history3['accuracy'], label="accuracy_mitSplit3")
+    plt.plot(history3['val_accuracy'], label="val_accuracy_mitSplit3")
+    plt.plot(history4['accuracy'], label="accuracy_mitSplit4")
+    plt.plot(history4['val_accuracy'], label="val_accuracy_mitSplit4")
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(loc='lower right')
+    if retrained:
+        file = path_model + '/accuracyRetrained.jpg'
+    else:
+        file = path_model + '/accuracy.jpg'
+    plt.savefig(file)
+    plt.close()
+
+    # summarize history for loss
+    plt.plot(history1['loss'], label="loss_mitSplit1")
+    plt.plot(history1['val_loss'], label="val_loss_mitSplit1")
+    plt.plot(history2['loss'], label="loss_mitSplit2")
+    plt.plot(history2['val_loss'], label="val_loss_mitSplit2")
+    plt.plot(history3['loss'], label="loss_mitSplit3")
+    plt.plot(history3['val_loss'], label="val_loss_mitSplit3")
+    plt.plot(history4['loss'], label="loss_mitSplit4")
+    plt.plot(history4['val_loss'], label="val_loss_mitSplit4")
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(loc='lower right')
+    if retrained:
+        file = path_model + '/lossRetrained.jpg'
+    else:
+        file = path_model + '/loss.jpg'
+    plt.savefig(file)
+    plt.close()
