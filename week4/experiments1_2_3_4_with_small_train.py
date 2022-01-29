@@ -1,5 +1,4 @@
 import os
-import datetime
 
 import tensorflow as tf
 from tensorflow.keras import backend as K
@@ -8,19 +7,18 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import plot_model
 from utils import preprocess_input, plot_acc_and_loss
-from keras.callbacks import ModelCheckpoint, CSVLogger
-# from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.python.keras.callbacks import EarlyStopping
-
 # --------------------------------------------------Global parameters--------------------------------------------------
 plot = True  # If plot is true, the performance of the model will be shown (accuracy, loss, etc.)
-backbone = 'EfficientNetB2'
+model_used = 'EfficientNetB2'
 num_of_experiment = '1'
 
 # Paths to database
-data_dir = '../../../M4/MIT_small_train_1'
-train_data_dir = data_dir + '/train'
-val_data_dir = data_dir + '/test'
+data_dir = ['../../../M4/MIT_small_train_1',
+            '../../../M4/MIT_small_train_2',
+            '../../../M4/MIT_small_train_3',
+            '../../../M4/MIT_small_train_4']
+train_data_dir = [s + '/train' for s in data_dir]
+val_data_dir = [s + '/test' for s in data_dir]
 test_data_dir = val_data_dir
 
 # Image params
@@ -29,14 +27,8 @@ img_height = 224
 
 # NN params
 batch_size = 32
-number_of_epoch = 10
-LR = 0.001
-optimizer = 'Adam'
-
-train_samples = 400
+number_of_epoch = 2
 validation_samples = 807
-test_samples = "?"
-
 # Experiment 2
 freeze_layers = True  # If this variable is activated, we will freeze the layers of the base model to train parameters
 # Experiment 3
@@ -44,9 +36,10 @@ train_again = True  # If this variable is activated, we will train again after t
 # Experiment 4
 new_layers = True  # Activate this variable to append new layers in between of the base model and the prediction layer
 
+
 # TO DO...:
-# CALLBACKS - code joan
-# HYPERPARAMETER SEARCH - joan
+# CALLBACKS
+# HYPERPARAMETER SEARCH
 # DATA AUGMENTATION
 # TRY THE 4 DATASETS OF MIT_SMALL_TRAIN
 # mas propuestas...
@@ -57,26 +50,11 @@ new_layers = True  # Activate this variable to append new layers in between of t
 if not os.path.exists("models"):
     os.mkdir("models")
 
-date_start = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-path_model = "models/" + backbone + '_exp_' + num_of_experiment + '_' + date_start
+path_model = "models/" + model_used + '_' + num_of_experiment
 if not os.path.exists(path_model):
     os.mkdir(path_model)
     os.mkdir(path_model + "/results")
     os.mkdir(path_model + "/saved_model")
-
-# Store description of experiment setup in a txt file
-with open(path_model + '/setup_description.txt', 'w') as f:
-    f.write('Experiment set-up for: ' + path_model)
-    f.write('\nExperiment number: ' + num_of_experiment)
-    f.write('\nBackbone: ' + backbone)
-    f.write('\nFreze Layers: ' + str(freeze_layers))
-    f.write('\nBatch Norm + Relu: ' + str(new_layers))
-    f.write('\nOptimizer: ' + optimizer)
-    f.write('\nLearning Rate: ' + str(LR))
-    f.write('\nTrain samples: ' + str(train_samples))
-    f.write('\nValidation samples: ' + str(validation_samples))
-    f.write('\nTest samples: ' + str(test_samples))
-    f.write('\nBatch Size: ' + str(batch_size))
 
 # create the base pre-trained model
 base_model = tf.keras.applications.EfficientNetB2()
@@ -108,7 +86,7 @@ if freeze_layers:
         layer.trainable = False
 
 # Compile the model with its loss and optimizer and show what layers are going to be trained
-model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer='Adam', metrics=['accuracy'])
 for layer in model.layers:
     print(layer.name, layer.trainable)
 
@@ -146,22 +124,10 @@ validation_generator = datagen.flow_from_directory(val_data_dir,
                                                    class_mode='categorical')
 
 history = model.fit(train_generator,
-                    steps_per_epoch=int(train_samples // batch_size),
+                    steps_per_epoch=(int(400 // batch_size) + 1),
                     epochs=number_of_epoch,
-                    shuffle=True,
                     validation_data=validation_generator,
-                    validation_steps=int(validation_samples // batch_size),
-                    callbacks=[
-                        # '/path_model + "/saved_model/"+backbone_epoch{epoch:02d}_acc{val_accuracy:.2f}'+backbone+'.h5'
-                        ModelCheckpoint(path_model + "/saved_model/" + backbone + '.h5',
-                                        monitor='val_accuracy',
-                                        save_best_only=True,
-                                        save_weights_only=True),
-                        CSVLogger(
-                            path_model + '/results/log_classification_' + backbone + '_exp_' + num_of_experiment + '.csv',
-                            append=True, separator=';'),
-                        # TensorBoard(path_model + '/tb_logs_' + backbone + '_exp_' + num_of_experiment, update_freq=1),
-                        EarlyStopping(monitor='val_accuracy', patience=8, min_delta=0.001, mode='max')])
+                    validation_steps=(int(validation_samples // batch_size) + 1), callbacks=[])
 
 result = model.evaluate(test_generator)
 print(result)
@@ -185,3 +151,6 @@ if freeze_layers and train_again:
 
     if plot:
         plot_acc_and_loss(history, path_model)
+
+model_f_path = path_model + "/saved_model" + '/' + model_used + '_' + num_of_experiment + '.h5'
+model.save_weights(model_f_path)  # always save your weights after training or during training
