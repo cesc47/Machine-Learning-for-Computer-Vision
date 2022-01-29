@@ -20,8 +20,8 @@ num_of_experiment = '1'
 # Paths to database
 data_dir = '../../../M4/MIT_small_train_1'
 train_data_dir = data_dir + '/train'
-val_data_dir = data_dir + '/test'
-test_data_dir = val_data_dir
+val_data_dir = data_dir + '/validation'
+test_data_dir =  data_dir + '/test'
 
 # Image params
 img_width = 224
@@ -29,13 +29,13 @@ img_height = 224
 
 # NN params
 batch_size = 32
-number_of_epoch = 10
+number_of_epoch = 50
 LR = 0.001
 optimizer = 'Adam'
 
 train_samples = 400
 validation_samples = 807
-test_samples = "?"
+test_samples = 807
 
 # Experiment 2
 freeze_layers = True  # If this variable is activated, we will freeze the layers of the base model to train parameters
@@ -184,4 +184,4 @@ if freeze_layers and train_again:
                         validation_steps=(int(validation_samples // batch_size) + 1), callbacks=[])
 
     if plot:
-        plot_acc_and_loss(history, path_model)
+        plot_acc_and_loss(history, path_model, retrained=True)

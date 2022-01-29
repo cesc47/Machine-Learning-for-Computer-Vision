@@ -25,7 +25,7 @@ def preprocess_input(x, dim_ordering='default'):
     return x
 
 
-def plot_acc_and_loss(history, path_model):
+def plot_acc_and_loss(history, path_model, retrained=False):
     # summarize history for accuracy
     plt.plot(history.history['accuracy'])
     plt.plot(history.history['val_accuracy'])
@@ -33,7 +33,10 @@ def plot_acc_and_loss(history, path_model):
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
     plt.legend(['train', 'validation'], loc='upper left')
-    file = path_model + '/results' + '/accuracy.jpg'
+    if retrained:
+        file = path_model + '/results' + '/accuracyRetrained.jpg'
+    else:
+        file = path_model + '/results' + '/accuracy.jpg'
     plt.savefig(file)
     plt.close()
 
@@ -44,6 +47,9 @@ def plot_acc_and_loss(history, path_model):
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'validation'], loc='upper left')
-    file = path_model + '/results' + '/loss.jpg'
+    if retrained:
+        file = path_model + '/results' + '/lossRetrained.jpg'
+    else:
+        file = path_model + '/results' + '/loss.jpg'
     plt.savefig(file)
     plt.close()
