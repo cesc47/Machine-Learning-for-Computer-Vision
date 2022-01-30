@@ -16,7 +16,7 @@ import pickle
 # --------------------------------------------------Global parameters--------------------------------------------------
 plot = True  # If plot is true, the performance of the model will be shown (accuracy, loss, etc.)
 backbone = 'EfficientNetB2'
-num_of_experiment = '2'
+num_of_experiment = '4'
 
 # Paths to database
 data_dir = ['../../../M4/MIT_small_train_1',
@@ -32,21 +32,21 @@ img_width = 224
 img_height = 224
 
 # NN params
-batch_size = 32
+batch_size = 16
 number_of_epoch = 50
 LR = 0.001
-optimizer = 'Adam'
+optimizer = tf.keras.optimizers.Adagrad(learning_rate=LR)
 
 train_samples = 400
 validation_samples = 807
 test_samples = 807
 
 # Experiment 2
-freeze_layers = True  # If this variable is activated, we will freeze the layers of the base model to train parameters
+freeze_layers = False  # If this variable is activated, we will freeze the layers of the base model to train parameters
 # Experiment 3
-train_again = True  # If this variable is activated, we will train again after the freezing the whole model.
+train_again = False  # If this variable is activated, we will train again after the freezing the whole model.
 # Experiment 4
-new_layers = True  # Activate this variable to append new layers in between of the base model and the prediction layer
+new_layers = False  # Activate this variable to append new layers in between of the base model and the prediction layer
 # ---------------------------------------------------------------------------------------------------------------------
 i = 1
 for (dir_train, dir_val, dir_test) in zip(train_data_dir, val_data_dir, test_data_dir):
@@ -69,7 +69,7 @@ for (dir_train, dir_val, dir_test) in zip(train_data_dir, val_data_dir, test_dat
         f.write('\nBackbone: ' + backbone)
         f.write('\nFreze Layers: ' + str(freeze_layers))
         f.write('\nBatch Norm + Relu: ' + str(new_layers))
-        f.write('\nOptimizer: ' + optimizer)
+        f.write('\nOptimizer: ' + str(optimizer))
         f.write('\nLearning Rate: ' + str(LR))
         f.write('\nTrain samples: ' + str(train_samples))
         f.write('\nValidation samples: ' + str(validation_samples))
@@ -197,25 +197,27 @@ with open('models/history_3.pickle', "rb") as input_file:
     history3 = pickle.load(input_file)
 with open('models/history_4.pickle', "rb") as input_file:
     history4 = pickle.load(input_file)
-
-with open('models/history_1_retrained.pickle', "rb") as input_file:
-    history1_r = pickle.load(input_file)
-with open('models/history_2_retrained.pickle', "rb") as input_file:
-    history2_r = pickle.load(input_file)
-with open('models/history_3_retrained.pickle', "rb") as input_file:
-    history3_r = pickle.load(input_file)
-with open('models/history_4_retrained.pickle', "rb") as input_file:
-    history4_r = pickle.load(input_file)
+if train_again:
+    with open('models/history_1_retrained.pickle', "rb") as input_file:
+        history1_r = pickle.load(input_file)
+    with open('models/history_2_retrained.pickle', "rb") as input_file:
+        history2_r = pickle.load(input_file)
+    with open('models/history_3_retrained.pickle', "rb") as input_file:
+        history3_r = pickle.load(input_file)
+    with open('models/history_4_retrained.pickle', "rb") as input_file:
+        history4_r = pickle.load(input_file)
 
 path_imgs = path_model + "/results"
 plot_acc_and_loss_all(history1, history2, history3, history4, path_imgs)
-plot_acc_and_loss_all(history1_r, history2_r, history3_r, history4_r, path_imgs, retrained=True)
+if train_again:
+    plot_acc_and_loss_all(history1_r, history2_r, history3_r, history4_r, path_imgs, retrained=True)
 
 os.remove('models/history_1.pickle')
 os.remove('models/history_2.pickle')
 os.remove('models/history_3.pickle')
 os.remove('models/history_4.pickle')
-os.remove('models/history_1_retrained.pickle')
-os.remove('models/history_2_retrained.pickle')
-os.remove('models/history_3_retrained.pickle')
-os.remove('models/history_4_retrained.pickle')
+if train_again:
+    os.remove('models/history_1_retrained.pickle')
+    os.remove('models/history_2_retrained.pickle')
+    os.remove('models/history_3_retrained.pickle')
+    os.remove('models/history_4_retrained.pickle')

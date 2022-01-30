@@ -15,11 +15,11 @@ from tensorflow.python.keras.callbacks import EarlyStopping
 # --------------------------------------------------Global parameters--------------------------------------------------
 plot = True  # If plot is true, the performance of the model will be shown (accuracy, loss, etc.)
 backbone = 'EfficientNetB2'
-num_of_experiment = '1'
+num_of_experiment = '3'
 
 # Paths to database
 data_dir = '../../../M4/MIT_small_train_1'
-train_data_dir = data_dir + '/train'
+train_data_dir = data_dir + '/t_augmented'
 val_data_dir = data_dir + '/validation'
 test_data_dir =  data_dir + '/test'
 
@@ -28,29 +28,21 @@ img_width = 224
 img_height = 224
 
 # NN params
-batch_size = 32
+batch_size = 16
 number_of_epoch = 50
 LR = 0.001
-optimizer = 'Adam'
+optimizer = tf.keras.optimizers.Adagrad(learning_rate=LR)
 
 train_samples = 400
 validation_samples = 807
 test_samples = 807
 
 # Experiment 2
-freeze_layers = True  # If this variable is activated, we will freeze the layers of the base model to train parameters
+freeze_layers = False # If this variable is activated, we will freeze the layers of the base model to train parameters
 # Experiment 3
-train_again = True  # If this variable is activated, we will train again after the freezing the whole model.
+train_again = False  # If this variable is activated, we will train again after the freezing the whole model.
 # Experiment 4
-new_layers = True  # Activate this variable to append new layers in between of the base model and the prediction layer
-
-# TO DO...:
-# CALLBACKS - code joan
-# HYPERPARAMETER SEARCH - joan
-# DATA AUGMENTATION
-# TRY THE 4 DATASETS OF MIT_SMALL_TRAIN
-# mas propuestas...
-
+new_layers = False  # Activate this variable to append new layers in between of the base model and the prediction layer
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Create the specific folders for this week, only if they don't exist
@@ -71,7 +63,7 @@ with open(path_model + '/setup_description.txt', 'w') as f:
     f.write('\nBackbone: ' + backbone)
     f.write('\nFreze Layers: ' + str(freeze_layers))
     f.write('\nBatch Norm + Relu: ' + str(new_layers))
-    f.write('\nOptimizer: ' + optimizer)
+    f.write('\nOptimizer: ' + str(optimizer))
     f.write('\nLearning Rate: ' + str(LR))
     f.write('\nTrain samples: ' + str(train_samples))
     f.write('\nValidation samples: ' + str(validation_samples))
