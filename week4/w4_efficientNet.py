@@ -15,7 +15,7 @@ from tensorflow.python.keras.callbacks import EarlyStopping
 # --------------------------------------------------Global parameters--------------------------------------------------
 plot = True  # If plot is true, the performance of the model will be shown (accuracy, loss, etc.)
 backbone = 'EfficientNetB2'
-num_of_experiment = '3'
+num_of_experiment = '5'
 
 # Paths to database
 data_dir = '../../../M4/MIT_small_train_1'
@@ -154,6 +154,9 @@ history = model.fit(train_generator,
                             append=True, separator=';'),
                         # TensorBoard(path_model + '/tb_logs_' + backbone + '_exp_' + num_of_experiment, update_freq=1),
                         EarlyStopping(monitor='val_accuracy', patience=8, min_delta=0.001, mode='max')])
+
+path_save_model = path_model + "/saved_model/" + backbone + num_of_experiment + '.h5'
+model.save(path_save_model)
 
 result = model.evaluate(test_generator)
 print(result)

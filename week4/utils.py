@@ -94,7 +94,7 @@ def plot_acc_and_loss_all(history1, history2, history3, history4, path_model, re
     plt.title('model loss')
     plt.ylabel('loss')
     plt.xlabel('epoch')
-    plt.legend(loc='lower right')
+    plt.legend(loc='upper right')
     if retrained:
         file = path_model + '/lossRetrained.jpg'
     else:

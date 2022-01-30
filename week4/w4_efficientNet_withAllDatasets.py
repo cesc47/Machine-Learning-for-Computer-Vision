@@ -162,6 +162,7 @@ for (dir_train, dir_val, dir_test) in zip(train_data_dir, val_data_dir, test_dat
                             EarlyStopping(monitor='val_accuracy', patience=8, min_delta=0.001, mode='max')])
 
     path_history = 'models/' + 'history_' + str(i) + '.pickle'
+
     with open(path_history, 'wb') as file_pi:
         pickle.dump(history.history, file_pi)
 
